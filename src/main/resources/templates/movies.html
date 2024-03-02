@@ -1,0 +1,11 @@
+<html lang="en"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<tr th:hx-get="${iter.last ? '/?page=' + (page + 1) : ''}" th:hx-swap="${iter.last ? 'afterend' : ''}" th:hx-trigger="${iter.last ? 'revealed' : ''}"
+    th:each="movie, iter : ${movies}" th:fragment="list(movies, page)">
+    <td th:text="${movie.title}">Title</td>
+    <td th:text="${movie.category}">Category</td>
+    <td th:text="${movie.yearOfRelease}">Year of Release</td>
+    <td th:text="${#numbers.formatDecimal(movie.price / 100, 1, 2) + ' $'}">Price</td>
+</tr>
+</html>
