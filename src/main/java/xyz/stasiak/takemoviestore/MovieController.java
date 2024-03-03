@@ -6,8 +6,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.Optional;
 
 @Controller
 @RequiredArgsConstructor
@@ -35,5 +38,15 @@ class MovieController {
         }
         model.addAttribute("page", page);
         return "movies :: rows";
+    }
+
+    @GetMapping("/movie/{id}")
+    String movie(Model model, @PathVariable long id) {
+        Optional<Movie> movie = movieService.getMovie(id);
+        if (movie.isEmpty()) {
+            return "redirect:/";
+        }
+        model.addAttribute("movie", movie.get());
+        return "movie-details";
     }
 }

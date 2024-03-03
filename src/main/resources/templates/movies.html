@@ -9,6 +9,7 @@
         <th>Category</th>
         <th>Year of Release</th>
         <th>Price</th>
+        <th>Actions</th>
     </tr>
     </thead>
     <!-- Table body -->
@@ -22,5 +23,8 @@
     <td th:text="${movie.category}">Category</td>
     <td th:text="${movie.yearOfRelease}">Year of Release</td>
     <td th:text="${#numbers.formatDecimal(movie.price / 100, 1, 2) + ' $'}">Price</td>
+    <td>
+        <a th:href="@{'/movie/' + ${movie.id}}" class="btn btn-primary">Details</a>
+    </td>
 </tr>
 </html>
