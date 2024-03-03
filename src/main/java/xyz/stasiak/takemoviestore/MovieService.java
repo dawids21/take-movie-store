@@ -17,11 +17,19 @@ class MovieService {
         return movieRepository.findAll(pageRequest);
     }
 
-    List<Movie> getMoviesByCategory(String category) {
-        return movieRepository.findAllByCategory(category);
+    Page<Movie> getMoviesByCategory(String category, PageRequest pageRequest) {
+        return movieRepository.findAllByCategoryContaining(category, pageRequest);
     }
 
     Optional<Movie> getMovie(long id) {
         return movieRepository.findById(id);
+    }
+
+    List<String> getAllCategories() {
+        List<Movie> movies = movieRepository.findAll();
+        return movies.stream()
+                .flatMap(movie -> movie.getCategories().stream())
+                .distinct()
+                .toList();
     }
 }

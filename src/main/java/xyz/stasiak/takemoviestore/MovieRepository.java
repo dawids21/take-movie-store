@@ -1,9 +1,9 @@
 package xyz.stasiak.takemoviestore;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.List;
-
 interface MovieRepository extends JpaRepository<Movie, Long> {
-    List<Movie> findAllByCategory(String category);
+    Page<Movie> findAllByCategoryContaining(String category, Pageable pageable);
 }

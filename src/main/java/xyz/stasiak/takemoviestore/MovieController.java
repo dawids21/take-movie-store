@@ -17,17 +17,23 @@ class MovieController {
     private final MovieService movieService;
 
     @GetMapping
-    String index(Model model, @RequestParam(required = false, defaultValue = "0") int page) {
+    String index(Model model) {
         model.addAttribute("movies", movieService.getMovies(PageRequest.of(0, PAGE_SIZE)).getContent());
         model.addAttribute("page", 0);
+        model.addAttribute("categories", movieService.getAllCategories());
         return "index";
     }
 
-    @GetMapping
+    @GetMapping("/movies")
     @HxRequest
-    String moviesList(Model model, @RequestParam(required = false, defaultValue = "0") int page) {
-        model.addAttribute("movies", movieService.getMovies(PageRequest.of(page, PAGE_SIZE)).getContent());
+    String moviesList(Model model, @RequestParam(required = false, defaultValue = "0") int page, @RequestParam(required = false) String category) {
+        if (category != null && !category.isBlank()) {
+            model.addAttribute("category", category);
+            model.addAttribute("movies", movieService.getMoviesByCategory(category, PageRequest.of(page, PAGE_SIZE)).getContent());
+        } else {
+            model.addAttribute("movies", movieService.getMovies(PageRequest.of(page, PAGE_SIZE)).getContent());
+        }
         model.addAttribute("page", page);
-        return "movies :: list";
+        return "movies :: rows";
     }
 }

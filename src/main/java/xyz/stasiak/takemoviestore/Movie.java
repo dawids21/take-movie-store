@@ -6,6 +6,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.Getter;
 
+import java.util.Arrays;
+import java.util.List;
+
 @Entity
 @Getter
 class Movie {
@@ -21,11 +24,7 @@ class Movie {
     protected Movie() {
     }
 
-    public Movie(String title, String category, int yearOfRelease, String plotDescription, int price) {
-        this.title = title;
-        this.category = category;
-        this.yearOfRelease = yearOfRelease;
-        this.plotDescription = plotDescription;
-        this.price = price;
+    List<String> getCategories() {
+        return Arrays.asList(category.split(", "));
     }
 }
