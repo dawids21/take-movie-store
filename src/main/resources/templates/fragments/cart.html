@@ -1,0 +1,6 @@
+<html lang="en"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<span id="cartButtonText" th:fragment="button(total)"
+      th:text="${': ' + #numbers.formatDecimal(total, 1, 2) + ' $'}"></span>
+</html>

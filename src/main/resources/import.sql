@@ -1,3 +1,5 @@
+INSERT INTO shopping_cart(id, total_price) VALUES (1, 0);
+
 INSERT INTO movie (id, title, category, year_of_release, plot_description, price) VALUES (1, 'The Shawshank Redemption', 'Drama', 1994, 'Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of common decency.', 1000);
 INSERT INTO movie (id, title, category, year_of_release, plot_description, price) VALUES (2, 'The Godfather', 'Crime, Drama', 1972, 'An organized crime dynasty''s aging patriarch transfers control of his clandestine empire to his reluctant son.', 1250);
 INSERT INTO movie (id, title, category, year_of_release, plot_description, price) VALUES (3, 'The Dark Knight', 'Action, Crime, Drama', 2008, 'When the menace known as The Joker emerges from his mysterious past, he wreaks havoc and chaos on the people of Gotham.', 1500);

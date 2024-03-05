@@ -1,0 +1,48 @@
+<html lang="en"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<table class="table" th:fragment="table(movies, page)">
+    <!-- Table headers -->
+    <thead>
+    <tr>
+        <th>Title</th>
+        <th>Category</th>
+        <th>Year of Release</th>
+        <th>Price</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <!-- Table body -->
+    <tbody hx-get="/movies/rows" hx-trigger="htmx:historyRestore from:body" id="movieRows">
+    <!--    <tbody id="movieRows">-->
+    <tr th:replace="~{fragments/movies :: rows(${movies}, ${page}, null)}"></tr>
+    </tbody>
+</table>
+<!--suppress HtmlUnknownTag -->
+<!--/*@thymesVar id="movie" type="xyz.stasiak.takemoviestore.MovieDto"*/-->
+<tr hx-disinherit="hx-swap" th:each="movie, iter : ${movies}" th:fragment="rows(movies, page, category)"
+    th:hx-get="${iter.last ? '/movies/rows?page=' + (page + 1) + (category != null ? '&category=' + category : '') : ''}"
+    th:hx-swap="${iter.last ? 'afterend' : ''}" th:hx-trigger="${iter.last ? 'revealed' : ''}"
+    th:id="|movie-row-${movie.id}|"
+>
+    <td th:text="${movie.title}">Title</td>
+    <td th:text="${movie.category}">Category</td>
+    <td th:text="${movie.yearOfRelease}">Year of Release</td>
+    <td th:text="${#numbers.formatDecimal(movie.price / 100, 1, 2) + ' $'}">Price</td>
+    <td>
+        <a class="btn btn-primary" hx-boost="true" th:href="@{'/movies/' + ${movie.id}}">Details</a>
+        <button th:replace="~{fragments/movies :: movieCartButton(${movie})}">
+        </button>
+    </td>
+</tr>
+<!--/*@thymesVar id="movie" type="xyz.stasiak.takemoviestore.MovieDto"*/-->
+<button class="btn btn-primary"
+        hx-select-oob="#cartButtonText"
+        hx-swap="outerHTML"
+        hx-target="this"
+        th:fragment="movieCartButton(movie)"
+        th:hx-post="${(movie.inShoppingCart ? '/movies/cart/remove/' : '/movies/cart/add/') + movie.id}"
+        th:text="${movie.inShoppingCart ? 'Remove' : 'Add'}"
+>
+</button>
+</html>

@@ -1,52 +1,102 @@
 package xyz.stasiak.takemoviestore;
 
+import io.github.wimdeblauwe.htmx.spring.boot.mvc.HtmxResponse;
 import io.github.wimdeblauwe.htmx.spring.boot.mvc.HxRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @Controller
 @RequiredArgsConstructor
-@RequestMapping("/")
+@RequestMapping("/movies")
 class MovieController {
     private static final int PAGE_SIZE = 25;
     private final MovieService movieService;
 
     @GetMapping
     String index(Model model) {
-        model.addAttribute("movies", movieService.getMovies(PageRequest.of(0, PAGE_SIZE)).getContent());
         model.addAttribute("page", 0);
         model.addAttribute("categories", movieService.getAllCategories());
+        ShoppingCart shoppingCart = movieService.getShoppingCart();
+        List<Movie> movies = movieService.getMovies(PageRequest.of(0, PAGE_SIZE)).getContent();
+        model.addAttribute("movies", toMovieDtos(movies, shoppingCart));
+        model.addAttribute("total", shoppingCart.getTotalPrice());
         return "index";
     }
 
-    @GetMapping("/movies")
+    @GetMapping("/rows")
     @HxRequest
     String moviesList(Model model, @RequestParam(required = false, defaultValue = "0") int page, @RequestParam(required = false) String category) {
+        ShoppingCart shoppingCart = movieService.getShoppingCart();
         if (category != null && !category.isBlank()) {
             model.addAttribute("category", category);
-            model.addAttribute("movies", movieService.getMoviesByCategory(category, PageRequest.of(page, PAGE_SIZE)).getContent());
+            List<Movie> movies = movieService.getMoviesByCategory(category, PageRequest.of(page, PAGE_SIZE)).getContent();
+            model.addAttribute("movies", toMovieDtos(movies, shoppingCart));
         } else {
-            model.addAttribute("movies", movieService.getMovies(PageRequest.of(page, PAGE_SIZE)).getContent());
+            List<Movie> movies = movieService.getMovies(PageRequest.of(page, PAGE_SIZE)).getContent();
+            model.addAttribute("movies", toMovieDtos(movies, shoppingCart));
         }
         model.addAttribute("page", page);
-        return "movies :: rows";
+        return "fragments/movies :: rows";
     }
 
-    @GetMapping("/movie/{id}")
+    @GetMapping("/{id}")
     String movie(Model model, @PathVariable long id) {
         Optional<Movie> movie = movieService.getMovie(id);
         if (movie.isEmpty()) {
-            return "redirect:/";
+            return "redirect:/movies";
         }
-        model.addAttribute("movie", movie.get());
+        ShoppingCart shoppingCart = movieService.getShoppingCart();
+        model.addAttribute("movie", toMovieDto(movie.get(), shoppingCart));
+        model.addAttribute("total", shoppingCart.getTotalPrice());
         return "movie-details";
+    }
+
+    @PostMapping(value = "/cart/add/{id}")
+    @HxRequest
+    HtmxResponse addToCart(Model model, @PathVariable long id) {
+        ShoppingCart shoppingCart = movieService.addMovieToShoppingCart(id);
+        Optional<Movie> movie = movieService.getMovie(id);
+        if (movie.isEmpty()) {
+            throw new IllegalArgumentException("Movie not found");
+        }
+        model.addAttribute("movie", toMovieDto(movie.get(), shoppingCart));
+        model.addAttribute("total", shoppingCart.getTotalPrice());
+        return HtmxResponse.builder()
+                .view("fragments/movies :: movieCartButton")
+                .view("fragments/cart :: button")
+                .build();
+    }
+
+    @PostMapping(value = "/cart/remove/{id}")
+    @HxRequest
+    HtmxResponse removeFromCart(Model model, @PathVariable long id) {
+        ShoppingCart shoppingCart = movieService.removeMovieFromShoppingCart(id);
+        Optional<Movie> movie = movieService.getMovie(id);
+        if (movie.isEmpty()) {
+            throw new IllegalArgumentException("Movie not found");
+        }
+        model.addAttribute("movie", toMovieDto(movie.get(), shoppingCart));
+        model.addAttribute("total", shoppingCart.getTotalPrice());
+        return HtmxResponse.builder()
+                .view("fragments/movies :: movieCartButton")
+                .view("fragments/cart :: button")
+                .build();
+    }
+
+    private List<MovieDto> toMovieDtos(List<Movie> movies, ShoppingCart shoppingCart) {
+        return movies.stream()
+                .map(movie -> toMovieDto(movie, shoppingCart))
+                .toList();
+    }
+
+    private MovieDto toMovieDto(Movie movie, ShoppingCart shoppingCart) {
+        return MovieDto.from(movie, shoppingCart.getMovies().contains(movie.getId()));
+
     }
 }

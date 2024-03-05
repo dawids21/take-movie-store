@@ -12,6 +12,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 class MovieService {
     private final MovieRepository movieRepository;
+    private final ShoppingCartRepository shoppingCartRepository;
 
     Page<Movie> getMovies(PageRequest pageRequest) {
         return movieRepository.findAll(pageRequest);
@@ -31,5 +32,23 @@ class MovieService {
                 .flatMap(movie -> movie.getCategories().stream())
                 .distinct()
                 .toList();
+    }
+
+    ShoppingCart getShoppingCart() {
+        return shoppingCartRepository.find();
+    }
+
+    ShoppingCart addMovieToShoppingCart(long movieId) {
+        ShoppingCart shoppingCart = shoppingCartRepository.find();
+        Movie movie = movieRepository.findById(movieId).orElseThrow();
+        shoppingCart.addMovie(movie);
+        return shoppingCartRepository.save(shoppingCart);
+    }
+
+    ShoppingCart removeMovieFromShoppingCart(long movieId) {
+        ShoppingCart shoppingCart = shoppingCartRepository.find();
+        Movie movie = movieRepository.findById(movieId).orElseThrow();
+        shoppingCart.removeMovie(movie);
+        return shoppingCartRepository.save(shoppingCart);
     }
 }
