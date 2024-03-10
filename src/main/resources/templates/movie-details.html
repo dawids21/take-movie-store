@@ -22,7 +22,7 @@
     <h1 th:text="${movie.title}"></h1>
     <p th:text="'Category: ' + ${movie.category}"></p>
     <p th:text="'Year of release: ' + ${movie.yearOfRelease}"></p>
-    <p th:text="'Price: ' + ${#numbers.formatDecimal(movie.price / 100, 1, 2) + ' $'}"></p>
+    <p th:text="'Price: ' + ${#numbers.formatDecimal(movie.price / 100.0, 1, 2) + ' $'}"></p>
     <p th:text="${movie.plotDescription}"></p>
     <a class="btn btn-primary" onclick="history.back()">Back to movies table</a>
     <button th:replace="~{fragments/movies :: movieCartButton(${movie})}"></button>
