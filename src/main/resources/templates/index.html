@@ -41,15 +41,11 @@
             </div>
             <!-- Main content area -->
             <div class="col-md-9">
-                <!--                <div>-->
                 <div th:replace="~{fragments/movies :: table(${movies}, ${page})}"></div>
-                <!--                </div>-->
             </div>
         </div>
     </div>
 </div>
-<!--<script>-->
-<!--    htmx.config.useTemplateFragments = true;-->
-<!--</script>-->
+<div th:replace="~{fragments/cart :: cartModal}"></div>
 </body>
 </html>

@@ -26,5 +26,6 @@
     <p th:text="${movie.plotDescription}"></p>
     <a class="btn btn-primary" onclick="history.back()">Back to movies table</a>
 </div>
+<div th:replace="~{fragments/cart :: cartModal}"></div>
 </body>
 </html>

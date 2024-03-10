@@ -1,6 +1,19 @@
 <html lang="en"
       xmlns="http://www.w3.org/1999/xhtml"
       xmlns:th="http://www.thymeleaf.org">
-<span id="cartButtonText" th:fragment="button(total)"
-      th:text="${': ' + #numbers.formatDecimal(total, 1, 2) + ' $'}"></span>
+<span data-bs-target="#cart-modal" data-bs-toggle="modal" hx-get="/movies/cart" hx-target="#cart-modal"
+      hx-trigger="click"
+      id="cartButtonText"
+      th:fragment="button(total)" th:text="${': ' + #numbers.formatDecimal(total, 1, 2) + ' $'}"></span>
+<div aria-hidden="false"
+     class="modal modal-blur fade"
+     id="cart-modal"
+     style="display: none"
+     tabindex="-1"
+     th:fragment="cartModal">
+    <div th:replace="~{:: cartModalContent}"></div>
+</div>
+<div class="modal-dialog modal-lg modal-dialog-centered" role="document" th:fragment="cartModalContent">
+    <div class="modal-content"></div>
+</div>
 </html>

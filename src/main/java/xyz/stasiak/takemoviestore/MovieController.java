@@ -89,6 +89,12 @@ class MovieController {
                 .build();
     }
 
+    @GetMapping("/cart")
+    @HxRequest
+    String cart(Model model) {
+        return "fragments/cart :: cartModalContent";
+    }
+
     private List<MovieDto> toMovieDtos(List<Movie> movies, ShoppingCart shoppingCart) {
         return movies.stream()
                 .map(movie -> toMovieDto(movie, shoppingCart))
