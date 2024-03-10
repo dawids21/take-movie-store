@@ -16,7 +16,7 @@
     <div class="d-flex justify-content-end mb-3">
         <div class="btn btn-primary me-2">
             <i class="bi bi-cart"></i>
-            <span th:replace="~{fragments/cart :: button(${total})}"></span>
+            <span th:replace="~{fragments/cart :: cartButton(${total})}"></span>
         </div>
     </div>
     <h1 th:text="${movie.title}"></h1>

@@ -14,7 +14,6 @@
     </thead>
     <!-- Table body -->
     <tbody hx-get="/movies/rows" hx-trigger="htmx:historyRestore from:body" id="movieRows">
-    <!--    <tbody id="movieRows">-->
     <tr th:replace="~{fragments/movies :: rows(${movies}, ${page}, null)}"></tr>
     </tbody>
 </table>
@@ -36,12 +35,14 @@
     </td>
 </tr>
 <!--/*@thymesVar id="movie" type="xyz.stasiak.takemoviestore.MovieDto"*/-->
-<button class="btn btn-primary"
+<button
+        class="btn btn-primary"
         hx-select-oob="#cartButtonText"
         hx-swap="outerHTML"
         hx-target="this"
         th:fragment="movieCartButton(movie)"
         th:hx-post="${(movie.inShoppingCart ? '/movies/cart/remove/' : '/movies/cart/add/') + movie.id}"
+        th:id="|movie-cart-button-${movie.id}|"
         th:text="${movie.inShoppingCart ? 'Remove' : 'Add'}"
 >
 </button>

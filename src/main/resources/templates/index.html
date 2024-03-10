@@ -17,9 +17,10 @@
         <div class="row">
             <div class="col-md-12 mt-3">
                 <div class="d-flex justify-content-end">
-                    <div class="btn btn-primary me-2">
+                    <div class="btn btn-primary me-2" hx-get="/movies/cart/value" hx-target="find span"
+                         hx-trigger="htmx:historyRestore from:body">
                         <i class="bi bi-cart"></i>
-                        <span th:replace="~{fragments/cart :: button(${total})}"></span>
+                        <span th:replace="~{fragments/cart :: cartButton(${total})}"></span>
                     </div>
                 </div>
                 <h1 class="mb-3">Movies</h1>

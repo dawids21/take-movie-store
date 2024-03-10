@@ -4,16 +4,65 @@
 <span data-bs-target="#cart-modal" data-bs-toggle="modal" hx-get="/movies/cart" hx-target="#cart-modal"
       hx-trigger="click"
       id="cartButtonText"
-      th:fragment="button(total)" th:text="${': ' + #numbers.formatDecimal(total, 1, 2) + ' $'}"></span>
+      th:fragment="cartButton(total)" th:text="${': ' + #numbers.formatDecimal(total, 1, 2) + ' $'}"></span>
 <div aria-hidden="false"
      class="modal modal-blur fade"
      id="cart-modal"
      style="display: none"
      tabindex="-1"
      th:fragment="cartModal">
-    <div th:replace="~{:: cartModalContent}"></div>
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+        </div>
+    </div>
 </div>
-<div class="modal-dialog modal-lg modal-dialog-centered" role="document" th:fragment="cartModalContent">
-    <div class="modal-content"></div>
+<div class="modal-dialog modal-lg modal-dialog-centered" role="document" th:fragment="cartModalContent(movies)">
+    <!--/*@thymesVar id="movies" type="java.util.List<xyz.stasiak.takemoviestore.MovieDto>"*/-->
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">Shopping Cart</h5>
+        </div>
+        <div class="modal-body">
+            <div class="alert alert-info" role="alert" th:if="${movies.isEmpty()}">
+                Your shopping cart is empty.
+            </div>
+            <div th:if="${!movies.isEmpty()}">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Price</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="movie, iter : ${movies}"
+                        th:id="|movie-cart-row-${movie.id}|"
+                    >
+                        <td th:text="${movie.title}">Title</td>
+                        <td th:text="${#numbers.formatDecimal(movie.price / 100, 1, 2) + ' $'}">Price</td>
+                        <td>
+                            <button class="btn btn-primary"
+                                    hx-swap="delete"
+                                    th:hx-post="|/movies/cart/remove/${movie.id}|"
+                                    th:hx-select-oob="'#cartButtonText,#' + |movie-cart-button-${movie.id}|"
+                                    th:hx-target="'#' + |movie-cart-row-${movie.id}|"
+                            >
+                                Remove
+                            </button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary"
+                    data-bs-dismiss="modal"
+                    type="button">
+                Close
+            </button>
+        </div>
+    </div>
 </div>
 </html>

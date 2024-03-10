@@ -51,4 +51,9 @@ class MovieService {
         shoppingCart.removeMovie(movie);
         return shoppingCartRepository.save(shoppingCart);
     }
+
+    List<Movie> getMoviesInShoppingCart() {
+        ShoppingCart shoppingCart = shoppingCartRepository.find();
+        return movieRepository.findAllById(shoppingCart.getMovies());
+    }
 }

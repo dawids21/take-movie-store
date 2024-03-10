@@ -69,7 +69,7 @@ class MovieController {
         model.addAttribute("total", shoppingCart.getTotalPrice());
         return HtmxResponse.builder()
                 .view("fragments/movies :: movieCartButton")
-                .view("fragments/cart :: button")
+                .view("fragments/cart :: cartButton")
                 .build();
     }
 
@@ -85,14 +85,24 @@ class MovieController {
         model.addAttribute("total", shoppingCart.getTotalPrice());
         return HtmxResponse.builder()
                 .view("fragments/movies :: movieCartButton")
-                .view("fragments/cart :: button")
+                .view("fragments/cart :: cartButton")
                 .build();
     }
 
     @GetMapping("/cart")
     @HxRequest
     String cart(Model model) {
+        ShoppingCart shoppingCart = movieService.getShoppingCart();
+        model.addAttribute("movies", toMovieDtos(movieService.getMoviesInShoppingCart(), shoppingCart));
         return "fragments/cart :: cartModalContent";
+    }
+
+    @GetMapping("/cart/value")
+    @HxRequest
+    String cartValue(Model model) {
+        ShoppingCart shoppingCart = movieService.getShoppingCart();
+        model.addAttribute("total", shoppingCart.getTotalPrice());
+        return "fragments/cart :: cartButton";
     }
 
     private List<MovieDto> toMovieDtos(List<Movie> movies, ShoppingCart shoppingCart) {
