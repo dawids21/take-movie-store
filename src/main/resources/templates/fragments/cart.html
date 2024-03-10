@@ -4,7 +4,7 @@
 <span data-bs-target="#cart-modal" data-bs-toggle="modal" hx-get="/movies/cart" hx-target="#cart-modal"
       hx-trigger="click"
       id="cartButtonText"
-      th:fragment="cartButton(total)" th:text="${': ' + #numbers.formatDecimal(total, 1, 2) + ' $'}"></span>
+      th:fragment="cartButton(total)" th:text="|: ${#numbers.formatDecimal(total / 100.0, 1, 2)}| + ' $'"></span>
 <div aria-hidden="false"
      class="modal modal-blur fade"
      id="cart-modal"
@@ -17,7 +17,6 @@
     </div>
 </div>
 <div class="modal-dialog modal-lg modal-dialog-centered" role="document" th:fragment="cartModalContent(movies)">
-    <!--/*@thymesVar id="movies" type="java.util.List<xyz.stasiak.takemoviestore.MovieDto>"*/-->
     <div class="modal-content">
         <div class="modal-header">
             <h5 class="modal-title">Shopping Cart</h5>
@@ -39,6 +38,7 @@
                     <tr th:each="movie, iter : ${movies}"
                         th:id="|movie-cart-row-${movie.id}|"
                     >
+                        <!--/*@thymesVar id="movie" type="xyz.stasiak.takemoviestore.MovieDto"*/-->
                         <td th:text="${movie.title}">Title</td>
                         <td th:text="${#numbers.formatDecimal(movie.price / 100, 1, 2) + ' $'}">Price</td>
                         <td>

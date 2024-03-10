@@ -27,7 +27,7 @@
     <td th:text="${movie.title}">Title</td>
     <td th:text="${movie.category}">Category</td>
     <td th:text="${movie.yearOfRelease}">Year of Release</td>
-    <td th:text="${#numbers.formatDecimal(movie.price / 100, 1, 2) + ' $'}">Price</td>
+    <td th:text="${#numbers.formatDecimal(movie.price / 100.0, 1, 2) + ' $'}">Price</td>
     <td>
         <a class="btn btn-primary" hx-boost="true" th:href="@{'/movies/' + ${movie.id}}">Details</a>
         <button th:replace="~{fragments/movies :: movieCartButton(${movie})}">
