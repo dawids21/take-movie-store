@@ -36,10 +36,11 @@
 </tr>
 <!--/*@thymesVar id="movie" type="xyz.stasiak.takemoviestore.MovieDto"*/-->
 <button
-        class="btn btn-primary"
+        class="btn"
         hx-select-oob="#cartButtonText"
         hx-swap="outerHTML"
         hx-target="this"
+        th:classappend="${movie.inShoppingCart ? 'btn-danger' : 'btn-success'}"
         th:fragment="movieCartButton(movie)"
         th:hx-post="${(movie.inShoppingCart ? '/movies/cart/remove/' : '/movies/cart/add/') + movie.id}"
         th:id="|movie-cart-button-${movie.id}|"
