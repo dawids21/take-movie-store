@@ -1,7 +1,6 @@
 package xyz.stasiak.takemoviestore;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
@@ -14,18 +13,6 @@ class MovieService {
     private final MovieRepository movieRepository;
     private final ShoppingCartRepository shoppingCartRepository;
 
-    Page<Movie> getMovies(PageRequest pageRequest) {
-        return movieRepository.findAll(pageRequest);
-    }
-
-    Page<Movie> getMoviesByCategory(String category, PageRequest pageRequest) {
-        return movieRepository.findAllByCategoryContaining(category, pageRequest);
-    }
-
-    Optional<Movie> getMovie(long id) {
-        return movieRepository.findById(id);
-    }
-
     List<String> getAllCategories() {
         List<Movie> movies = movieRepository.findAll();
         return movies.stream()
@@ -34,26 +21,58 @@ class MovieService {
                 .toList();
     }
 
-    ShoppingCart getShoppingCart() {
-        return shoppingCartRepository.find();
+    List<MovieDto> getMovies(PageRequest pageRequest) {
+        ShoppingCart shoppingCart = getShoppingCart();
+        return toMovieDtos(movieRepository.findAll(pageRequest).getContent(), shoppingCart);
     }
 
-    ShoppingCart addMovieToShoppingCart(long movieId) {
+    int getShoppingCartTotal() {
+        ShoppingCart shoppingCart = getShoppingCart();
+        return shoppingCart.getTotalPrice();
+    }
+
+    List<MovieDto> getMoviesByCategory(String category, PageRequest pageRequest) {
+        ShoppingCart shoppingCart = getShoppingCart();
+        return toMovieDtos(movieRepository.findAllByCategoryContaining(category, pageRequest).getContent(), shoppingCart);
+    }
+
+    Optional<MovieDto> getMovie(long id) {
+        ShoppingCart shoppingCart = getShoppingCart();
+        return movieRepository.findById(id)
+                .map(movie -> toMovieDto(movie, shoppingCart));
+    }
+
+    void addMovieToShoppingCart(long movieId) {
         ShoppingCart shoppingCart = shoppingCartRepository.find();
         Movie movie = movieRepository.findById(movieId).orElseThrow();
         shoppingCart.addMovie(movie);
-        return shoppingCartRepository.save(shoppingCart);
+        shoppingCartRepository.save(shoppingCart);
     }
 
-    ShoppingCart removeMovieFromShoppingCart(long movieId) {
+    void removeMovieFromShoppingCart(long movieId) {
         ShoppingCart shoppingCart = shoppingCartRepository.find();
         Movie movie = movieRepository.findById(movieId).orElseThrow();
         shoppingCart.removeMovie(movie);
-        return shoppingCartRepository.save(shoppingCart);
+        shoppingCartRepository.save(shoppingCart);
     }
 
-    List<Movie> getMoviesInShoppingCart() {
+    List<MovieDto> getMoviesInShoppingCart() {
         ShoppingCart shoppingCart = shoppingCartRepository.find();
-        return movieRepository.findAllById(shoppingCart.getMovies());
+        return toMovieDtos(movieRepository.findAllById(shoppingCart.getMovies()), shoppingCart);
+    }
+
+    private ShoppingCart getShoppingCart() {
+        return shoppingCartRepository.find();
+    }
+
+    private List<MovieDto> toMovieDtos(List<Movie> movies, ShoppingCart shoppingCart) {
+        return movies.stream()
+                .map(movie -> toMovieDto(movie, shoppingCart))
+                .toList();
+    }
+
+    private MovieDto toMovieDto(Movie movie, ShoppingCart shoppingCart) {
+        return MovieDto.from(movie, shoppingCart.getMovies().contains(movie.getId()));
+
     }
 }

@@ -8,7 +8,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Optional;
 
 @Controller
@@ -22,51 +21,47 @@ class MovieController {
     String index(Model model) {
         model.addAttribute("page", 0);
         model.addAttribute("categories", movieService.getAllCategories());
-        ShoppingCart shoppingCart = movieService.getShoppingCart();
-        List<Movie> movies = movieService.getMovies(PageRequest.of(0, PAGE_SIZE)).getContent();
-        model.addAttribute("movies", toMovieDtos(movies, shoppingCart));
-        model.addAttribute("total", shoppingCart.getTotalPrice());
+        model.addAttribute("movies", movieService.getMovies(PageRequest.of(0, PAGE_SIZE)));
+        model.addAttribute("total", movieService.getShoppingCartTotal());
         return "index";
     }
 
     @GetMapping("/rows")
     @HxRequest
-    String moviesList(Model model, @RequestParam(required = false, defaultValue = "0") int page, @RequestParam(required = false) String category) {
-        ShoppingCart shoppingCart = movieService.getShoppingCart();
+    HtmxResponse moviesList(Model model, @RequestParam(required = false, defaultValue = "0") int page, @RequestParam(required = false) String category) {
         if (category != null && !category.isBlank()) {
             model.addAttribute("category", category);
-            List<Movie> movies = movieService.getMoviesByCategory(category, PageRequest.of(page, PAGE_SIZE)).getContent();
-            model.addAttribute("movies", toMovieDtos(movies, shoppingCart));
+            model.addAttribute("movies", movieService.getMoviesByCategory(category, PageRequest.of(page, PAGE_SIZE)));
         } else {
-            List<Movie> movies = movieService.getMovies(PageRequest.of(page, PAGE_SIZE)).getContent();
-            model.addAttribute("movies", toMovieDtos(movies, shoppingCart));
+            model.addAttribute("movies", movieService.getMovies(PageRequest.of(page, PAGE_SIZE)));
         }
         model.addAttribute("page", page);
-        return "fragments/movies :: rows";
+        return HtmxResponse.builder()
+                .view("fragments/movies :: rows")
+                .build();
     }
 
     @GetMapping("/{id}")
     String movie(Model model, @PathVariable long id) {
-        Optional<Movie> movie = movieService.getMovie(id);
+        Optional<MovieDto> movie = movieService.getMovie(id);
         if (movie.isEmpty()) {
             return "redirect:/movies";
         }
-        ShoppingCart shoppingCart = movieService.getShoppingCart();
-        model.addAttribute("movie", toMovieDto(movie.get(), shoppingCart));
-        model.addAttribute("total", shoppingCart.getTotalPrice());
+        model.addAttribute("movie", movie.get());
+        model.addAttribute("total", movieService.getShoppingCartTotal());
         return "movie-details";
     }
 
     @PostMapping(value = "/cart/add/{id}")
     @HxRequest
     HtmxResponse addToCart(Model model, @PathVariable long id) {
-        ShoppingCart shoppingCart = movieService.addMovieToShoppingCart(id);
-        Optional<Movie> movie = movieService.getMovie(id);
+        movieService.addMovieToShoppingCart(id);
+        Optional<MovieDto> movie = movieService.getMovie(id);
         if (movie.isEmpty()) {
             throw new IllegalArgumentException("Movie not found");
         }
-        model.addAttribute("movie", toMovieDto(movie.get(), shoppingCart));
-        model.addAttribute("total", shoppingCart.getTotalPrice());
+        model.addAttribute("movie", movie.get());
+        model.addAttribute("total", movieService.getShoppingCartTotal());
         return HtmxResponse.builder()
                 .view("fragments/movies :: movieCartButton")
                 .view("fragments/cart :: cartButton")
@@ -76,13 +71,13 @@ class MovieController {
     @PostMapping(value = "/cart/remove/{id}")
     @HxRequest
     HtmxResponse removeFromCart(Model model, @PathVariable long id) {
-        ShoppingCart shoppingCart = movieService.removeMovieFromShoppingCart(id);
-        Optional<Movie> movie = movieService.getMovie(id);
+        movieService.removeMovieFromShoppingCart(id);
+        Optional<MovieDto> movie = movieService.getMovie(id);
         if (movie.isEmpty()) {
             throw new IllegalArgumentException("Movie not found");
         }
-        model.addAttribute("movie", toMovieDto(movie.get(), shoppingCart));
-        model.addAttribute("total", shoppingCart.getTotalPrice());
+        model.addAttribute("movie", movie.get());
+        model.addAttribute("total", movieService.getShoppingCartTotal());
         return HtmxResponse.builder()
                 .view("fragments/movies :: movieCartButton")
                 .view("fragments/cart :: cartButton")
@@ -92,29 +87,20 @@ class MovieController {
 
     @GetMapping("/cart")
     @HxRequest
-    String cart(Model model) {
-        ShoppingCart shoppingCart = movieService.getShoppingCart();
-        model.addAttribute("movies", toMovieDtos(movieService.getMoviesInShoppingCart(), shoppingCart));
-        model.addAttribute("total", shoppingCart.getTotalPrice());
-        return "fragments/cart :: cartModalContent";
+    HtmxResponse cart(Model model) {
+        model.addAttribute("movies", movieService.getMoviesInShoppingCart());
+        model.addAttribute("total", movieService.getShoppingCartTotal());
+        return HtmxResponse.builder()
+                .view("fragments/cart :: cartModalContent")
+                .build();
     }
 
     @GetMapping("/cart/value")
     @HxRequest
-    String cartValue(Model model) {
-        ShoppingCart shoppingCart = movieService.getShoppingCart();
-        model.addAttribute("total", shoppingCart.getTotalPrice());
-        return "fragments/cart :: cartButton";
-    }
-
-    private List<MovieDto> toMovieDtos(List<Movie> movies, ShoppingCart shoppingCart) {
-        return movies.stream()
-                .map(movie -> toMovieDto(movie, shoppingCart))
-                .toList();
-    }
-
-    private MovieDto toMovieDto(Movie movie, ShoppingCart shoppingCart) {
-        return MovieDto.from(movie, shoppingCart.getMovies().contains(movie.getId()));
-
+    HtmxResponse cartValue(Model model) {
+        model.addAttribute("total", movieService.getShoppingCartTotal());
+        return HtmxResponse.builder()
+                .view("fragments/cart :: cartButton")
+                .build();
     }
 }
